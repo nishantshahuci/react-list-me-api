@@ -95,7 +95,7 @@ module.exports.handleAuthenticate = (db, bcrypt) => (req, res) => {
           .where('email', email)
           .then(user => {
             // create token
-            const token = jwt.sign(user[0].toJSON(), process.env.SECRETORKEY, {
+            const token = jwt.sign(user[0], process.env.SECRETORKEY, {
               expiresIn: 3600 // 1 hour
             });
             res.status(200).json({
