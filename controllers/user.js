@@ -61,7 +61,7 @@ module.exports.handleRegister = (db, bcrypt) => (req, res) => {
   }).catch(err => res.status(500).json('Unable to register'));
 };
 
-module.exports.handleRegister = (db, bcrypt) => (req, res) => {
+module.exports.handleAuthenticate = (db, bcrypt) => (req, res) => {
   const { email, password } = req.body;
 
   // check if name, email, and password are given
