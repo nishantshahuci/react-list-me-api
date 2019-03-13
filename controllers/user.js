@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 // routes for Users API
 
 module.exports.handleRegister = (db, bcrypt) => (req, res) => {
@@ -102,10 +104,11 @@ module.exports.handleAuthenticate = (db, bcrypt) => (req, res) => {
               token: token
             });
           })
-          .catch(() =>
-            res
-              .status(400)
-              .json({ success: false, message: 'Uable to retrieve user' })
+          .catch(err =>
+            res.status(400).json({
+              success: false,
+              message: 'Uable to retrieve user: ' + err
+            })
           );
       } else {
         return res
