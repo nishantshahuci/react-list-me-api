@@ -7,12 +7,13 @@ module.exports = function(passport, db) {
     secretOrKey: process.env.SECRETORKEY
   };
   passport.use(
-    new JwtStrategy(opts, (jwt_payload, done) => {
+    new JwtStrategy(opts, (req, jwt_payload, done) => {
       db.select('id', 'name', 'email')
         .from('user')
         .where('id', jwt_payload.id)
         .then(user => {
           if (user[0]) {
+            req.user = user[0];
             done(null, user);
           } else {
             done(null, false);

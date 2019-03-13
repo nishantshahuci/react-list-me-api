@@ -107,7 +107,7 @@ module.exports.handleAuthenticate = (db, bcrypt) => (req, res) => {
           .catch(err =>
             res.status(400).json({
               success: false,
-              message: 'Uable to retrieve user: ' + err
+              message: 'Uable to retrieve user'
             })
           );
       } else {
