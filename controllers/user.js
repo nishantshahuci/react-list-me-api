@@ -118,15 +118,15 @@ module.exports.handleAuthenticate = (db, bcrypt) => (req, res) => {
 module.exports.handleDelete = db => (req, res) => {
   const { email } = req.user.email;
   db.select('id')
-    .from('list')
+    .from('lists')
     .where('owner', email)
     .then(lists => {
       db.transaction(trx => {
-        trx('listItem')
+        trx('items')
           .whereIn('list', lists)
           .del()
           .then(num => {
-            trx('list')
+            trx('lists')
               .whereIn('id', lists)
               .del()
               .then(num => {
@@ -134,7 +134,7 @@ module.exports.handleDelete = db => (req, res) => {
                   .where('email', email)
                   .del()
                   .then(num => {
-                    trx('user')
+                    trx('users')
                       .where('email', email)
                       .del()
                       .then(num => {
