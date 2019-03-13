@@ -39,7 +39,7 @@ require('./config/passport')(passport, db);
 
 // user routes
 app.get('/api', (req, res) => res.status(200).send('API is working'));
-app.post('/api/user/register', userController.handleRegister(db, bcrpt));
+app.post('/api/user/register', userController.handleRegister(db, bcrypt));
 app.post(
   '/api/user/authenticate',
   userController.handleAuthenticate(db, bcrypt)
