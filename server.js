@@ -14,7 +14,7 @@ const db = require('knex')({
 
 // require controllers
 const userController = require('./controllers/user');
-const listController = require('./controllers/list');
+// const listController = require('./controllers/list');
 
 // initialize express app
 const app = express();
