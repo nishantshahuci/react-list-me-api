@@ -4,11 +4,22 @@ const helmet = require('helmet');
 const bcrypt = require('bcrypt-nodejs');
 const passport = require('passport');
 const cors = require('cors');
+/*
 const db = require('knex')({
   client: 'pg',
   connection: {
     connectionString: process.env.DATABASE_URL,
     ssl: true
+  }
+});
+*/
+const db = require('knex')({
+  client: 'pg',
+  connection: {
+    host: '127.0.0.1',
+    user: 'nishant',
+    password: '',
+    database: 'listme'
   }
 });
 

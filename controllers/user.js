@@ -61,9 +61,9 @@ module.exports.handleRegister = (db, bcrypt) => (req, res) => {
           })
           .then(trx.commit)
           .catch(trx.rollback);
-      }).catch(err => res.status(500).json('Unable to register'));
+      }).catch(err => res.status(500).json('Unable to register ' + err));
     })
-    .catch(err => res.status(500).json('Unable to register'));
+    .catch(err => res.status(500).json('Unable to register ' + err));
 };
 
 module.exports.handleAuthenticate = (db, bcrypt) => (req, res) => {
@@ -95,9 +95,13 @@ module.exports.handleAuthenticate = (db, bcrypt) => (req, res) => {
           .where('email', email)
           .then(user => {
             // create token
-            const token = jwt.sign(user[0], process.env.SECRETORKEY, {
-              expiresIn: 3600 // 1 hour
-            });
+            const token = jwt.sign(
+              user[0],
+              process.env.SECRETORKEY || 'secret',
+              {
+                expiresIn: 3600 // 1 hour
+              }
+            );
             res.status(200).json({
               success: true,
               user: user[0],
@@ -122,25 +126,25 @@ module.exports.handleAuthenticate = (db, bcrypt) => (req, res) => {
 };
 
 module.exports.handleDelete = db => (req, res) => {
-  const { email } = req.user.email;
+  const { email } = req.user;
   db.select('id')
     .from('lists')
     .where('owner', email)
     .then(lists => {
       db.transaction(trx => {
-        trx('items')
+        return trx('items')
           .whereIn('list', lists)
           .del()
           .then(num => {
-            trx('lists')
+            return trx('lists')
               .whereIn('id', lists)
               .del()
               .then(num => {
-                trx('login')
+                return trx('login')
                   .where('email', email)
                   .del()
                   .then(num => {
-                    trx('users')
+                    return trx('users')
                       .where('email', email)
                       .del()
                       .then(num => {
@@ -157,14 +161,14 @@ module.exports.handleDelete = db => (req, res) => {
       }).catch(err =>
         res.status(500).json({
           success: false,
-          message: 'Unable to delete user'
+          message: 'Unable to delete user ' + err
         })
       );
     })
     .catch(err =>
       res.status(500).json({
         success: false,
-        message: 'Unable to delete user'
+        message: 'Unable to delete user ' + err
       })
     );
 };
