@@ -1,5 +1,3 @@
-const listController = require('./list');
-
 // routes for Users API
 
 module.exports.handleRegister = (db, bcrypt) => (req, res) => {
