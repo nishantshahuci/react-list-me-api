@@ -25,10 +25,12 @@ module.exports.handleRegister = (db, bcrypt) => (req, res) => {
     .from('login')
     .where('email', email)
     .then(data => {
-      return res.status(400).json({
-        success: false,
-        message: 'User with email ' + email + ' already exists'
-      });
+      if (data[0]) {
+        return res.status(400).json({
+          success: false,
+          message: 'User with email ' + email + ' already exists'
+        });
+      }
     });
 
   // encrypt password and add user
