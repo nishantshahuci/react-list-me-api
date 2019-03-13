@@ -31,36 +31,37 @@ module.exports.handleRegister = (db, bcrypt) => (req, res) => {
           message: 'User with email ' + email + ' already exists'
         });
       }
-    });
 
-  // encrypt password and add user
-  const hash = bcrypt.hashSync(password);
-  db.transaction(trx => {
-    trx
-      .insert({
-        hash: hash,
-        email: email
-      })
-      .into('login')
-      .returning('email')
-      .then(loginEmail => {
-        return trx
+      // encrypt password and add user
+      const hash = bcrypt.hashSync(password);
+      db.transaction(trx => {
+        trx
           .insert({
-            name: name,
-            email: loginEmail[0]
+            hash: hash,
+            email: email
           })
-          .into('users')
-          .returning(['id', 'name', 'email'])
-          .then(user => {
-            res.status(201).json({
-              success: true,
-              user: user[0]
-            });
-          });
-      })
-      .then(trx.commit)
-      .catch(trx.rollback);
-  }).catch(err => res.status(500).json('Unable to register'));
+          .into('login')
+          .returning('email')
+          .then(loginEmail => {
+            return trx
+              .insert({
+                name: name,
+                email: loginEmail[0]
+              })
+              .into('users')
+              .returning(['id', 'name', 'email'])
+              .then(user => {
+                return res.status(201).json({
+                  success: true,
+                  user: user[0]
+                });
+              });
+          })
+          .then(trx.commit)
+          .catch(trx.rollback);
+      }).catch(err => res.status(500).json('Unable to register'));
+    })
+    .catch(err => res.status(500).json('Unable to register'));
 };
 
 module.exports.handleAuthenticate = (db, bcrypt) => (req, res) => {
