@@ -25,7 +25,7 @@ const db = require('knex')({
 
 // require controllers
 const userController = require('./controllers/user');
-// const listController = require('./controllers/list');
+const listController = require('./controllers/list');
 
 // initialize express app
 const app = express();
@@ -50,13 +50,13 @@ require('./config/passport')(passport, db);
 
 // user routes
 app.get('/api', (req, res) => res.status(200).send('API is working'));
-app.post('/api/user/register', userController.handleRegister(db, bcrypt));
+app.post('/api/user', userController.handleRegister(db, bcrypt));
 app.post(
   '/api/user/authenticate',
   userController.handleAuthenticate(db, bcrypt)
 );
 app.get(
-  '/api/user/profile',
+  '/api/user',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     res.status(200).json({
@@ -69,9 +69,51 @@ app.get(
   }
 );
 app.delete(
-  '/api/user/delete',
+  '/api/user',
   passport.authenticate('jwt', { session: false }),
   userController.handleDelete(db)
+);
+
+// list routes
+app.post(
+  '/api/list',
+  passport.authenticate('jwt', { session: false }),
+  listController.handleCreate(db)
+);
+app.get(
+  '/api/list',
+  passport.authenticate('jwt', { session: false }),
+  listController.handleGetAll(db)
+);
+app.get(
+  '/api/list/:id',
+  passport.authenticate('jwt', { session: false }),
+  listController.handleGet(db)
+);
+app.patch(
+  '/api/list/:id',
+  passport.authenticate('jwt', { session: false }),
+  listController.handleUpdate(db)
+);
+app.put(
+  '/api/item/',
+  passport.authenticate('jwt', { session: false }),
+  listController.handleAddItem(db)
+);
+app.patch(
+  '/api/item/:id',
+  passport.authenticate('jwt', { session: false }),
+  listController.handleUpdateItem(db)
+);
+app.delete(
+  '/api/item/:id',
+  passport.authenticate('jwt', { session: false }),
+  listController.handleDeleteItem(db)
+);
+app.delete(
+  '/api/list/:id',
+  passport.authenticate('jwt', { session: false }),
+  listController.handleDeleteList(db)
 );
 
 // start server

@@ -27,7 +27,7 @@ module.exports.handleRegister = (db, bcrypt) => (req, res) => {
     .from('login')
     .where('email', email)
     .then(data => {
-      if (data[0]) {
+      if (data.length > 0) {
         return res.status(400).json({
           success: false,
           message: 'User with email ' + email + ' already exists'
@@ -61,9 +61,9 @@ module.exports.handleRegister = (db, bcrypt) => (req, res) => {
           })
           .then(trx.commit)
           .catch(trx.rollback);
-      }).catch(err => res.status(500).json('Unable to register ' + err));
+      });
     })
-    .catch(err => res.status(500).json('Unable to register ' + err));
+    .catch(err => res.status(500).json('Unable to register'));
 };
 
 module.exports.handleAuthenticate = (db, bcrypt) => (req, res) => {
@@ -109,7 +109,7 @@ module.exports.handleAuthenticate = (db, bcrypt) => (req, res) => {
             });
           })
           .catch(err =>
-            res.status(400).json({
+            res.status(500).json({
               success: false,
               message: 'Uable to retrieve user'
             })
@@ -158,17 +158,12 @@ module.exports.handleDelete = db => (req, res) => {
           })
           .then(trx.commit)
           .catch(trx.rollback);
-      }).catch(err =>
-        res.status(500).json({
-          success: false,
-          message: 'Unable to delete user ' + err
-        })
-      );
+      });
     })
     .catch(err =>
       res.status(500).json({
         success: false,
-        message: 'Unable to delete user ' + err
+        message: 'Unable to delete user'
       })
     );
 };
