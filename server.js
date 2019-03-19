@@ -95,7 +95,7 @@ app.patch(
   passport.authenticate('jwt', { session: false }),
   listController.handleUpdate(db)
 );
-app.put(
+app.post(
   '/api/item/',
   passport.authenticate('jwt', { session: false }),
   listController.handleAddItem(db)

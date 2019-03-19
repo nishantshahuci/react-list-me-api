@@ -2,7 +2,7 @@
 
 module.exports.handleCreate = db => (req, res) => {
   const title = req.body.title;
-  const email = req.user.email;
+  const owner = req.user.email;
 
   // check if title exists
   if (!title)
@@ -12,7 +12,7 @@ module.exports.handleCreate = db => (req, res) => {
     });
 
   // add list to database
-  db.insert({ title })
+  db.insert({ title, owner })
     .into('lists')
     .returning('*')
     .then(list => {
@@ -24,7 +24,7 @@ module.exports.handleCreate = db => (req, res) => {
     .catch(err => {
       return res.status(500).json({
         success: false,
-        message: 'Failed to create list'
+        message: 'Failed to create list - ' + err
       });
     });
 };
@@ -33,20 +33,27 @@ module.exports.handleGetAll = db => (req, res) => {
   // return all the lists
   db.select('id', 'title')
     .from('lists')
-    .where(email, req.user.email)
+    .where('owner', req.user.email)
     .then(lists => {
       return res.status(200).json({
         success: true,
         lists: lists
       });
-    });
+    })
+    .catch(err =>
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get lists'
+      })
+    );
 };
 
 module.exports.handleGet = db => (req, res) => {
   // build list and return if it belongs to user
   db.select('id', 'title')
     .from('lists')
-    .where(email, req.user.email)
+    .where('owner', req.user.email)
+    .where('id', parseInt(req.params.id))
     .then(list => {
       // check if list was found
       if (list.length === 0) {
@@ -58,11 +65,11 @@ module.exports.handleGet = db => (req, res) => {
         // get all the items for the list
         db.select('id', 'title', 'complete')
           .from('items')
-          .where('id', list[0].id)
+          .where('list', list[0].id)
           .then(items => {
             return res.status(200).json({
               success: true,
-              list: { id, title, items }
+              list: { id: parseInt(list[0].id), title: list[0].title, items }
             });
           });
       }
@@ -84,7 +91,7 @@ module.exports.handleUpdate = db => (req, res) => {
     });
   db('lists')
     .where('owner', req.user.email)
-    .where('id', req.params.id)
+    .where('id', parseInt(req.params.id))
     .update({ title: req.body.title })
     .returning(['id', 'title', 'owner'])
     .then(list => {
@@ -128,6 +135,7 @@ module.exports.handleAddItem = db => (req, res) => {
   db.select('id')
     .from('lists')
     .where('owner', req.user.email)
+    .where('id', parseInt(listId))
     .then(list => {
       if (list.length === 0) {
         return res.status(400).json({
@@ -135,7 +143,7 @@ module.exports.handleAddItem = db => (req, res) => {
           message: 'List not found'
         });
       } else {
-        db.insert({ list: listId, title, complete })
+        db.insert({ list: parseInt(listId), title, complete })
           .into('items')
           .returning('*')
           .then(item => {
@@ -156,7 +164,7 @@ module.exports.handleAddItem = db => (req, res) => {
 
 module.exports.handleUpdateItem = db => (req, res) => {
   const { title, complete } = req.body;
-  const itemId = req.params.id;
+  const itemId = parseInt(req.params.id);
   if (!title)
     return res.status(400).json({
       success: false,
@@ -186,7 +194,7 @@ module.exports.handleUpdateItem = db => (req, res) => {
                 success: false,
                 message: 'Failed to get list'
               });
-            } else if (list[0] !== req.user.email) {
+            } else if (list[0].owner !== req.user.email) {
               return res.status(400).json({
                 success: false,
                 message: 'Item not found'
@@ -217,7 +225,7 @@ module.exports.handleUpdateItem = db => (req, res) => {
 module.exports.handleDeleteItem = db => (req, res) => {
   db.select('list')
     .from('items')
-    .where('id', req.params.id)
+    .where('id', parseInt(req.params.id))
     .then(item => {
       if (item.length === 0) {
         return res.status(500).json({
@@ -227,21 +235,21 @@ module.exports.handleDeleteItem = db => (req, res) => {
       } else {
         db.select('owner')
           .from('lists')
-          .where('id', item[0])
+          .where('id', item[0].list)
           .then(list => {
             if (list.length === 0) {
               return res.status(500).json({
                 sucess: false,
                 message: 'Failed to get list'
               });
-            } else if (list[0] !== req.user.email) {
+            } else if (list[0].owner !== req.user.email) {
               return res.status(400).json({
                 sucess: false,
                 message: 'Item not found'
               });
             } else {
               db('items')
-                .where('id', req.params.id)
+                .where('id', parseInt(req.params.id))
                 .del()
                 .then(num => {
                   return res.status(200).json({
@@ -262,11 +270,11 @@ module.exports.handleDeleteItem = db => (req, res) => {
 };
 
 module.exports.handleDeleteList = db => (req, res) => {
-  db.select('owner')
+  db.select('*')
     .from('lists')
-    .where('id', req.params.id)
+    .where('id', parseInt(req.params.id))
     .then(list => {
-      if (list.length === 0) {
+      if (list.length === 0 || list[0].owner !== req.user.email) {
         return res.status(400).json({
           success: false,
           message: 'List not found'
@@ -277,7 +285,7 @@ module.exports.handleDeleteList = db => (req, res) => {
           .del()
           .then(num => {
             db('lists')
-              .where('id', req.params.id)
+              .where('id', parseInt(req.params.id))
               .del()
               .then(num => {
                 if (num > 0) {
