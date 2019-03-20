@@ -45,6 +45,17 @@ app.post(
   userController.handleAuthenticate(db, bcrypt)
 );
 app.get(
+  '/api/user/logout',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    req.logout();
+    res.status(200).json({
+      success: true,
+      message: 'Successfully logged out'
+    });
+  }
+);
+app.get(
   '/api/user',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
