@@ -58,7 +58,7 @@ module.exports.handleGetAllDetails = db => (req, res) => {
     'items.complete'
   ])
     .from('lists')
-    .innerJoin('items', 'lists.id', 'items.list')
+    .leftJoin('items', 'lists.id', 'items.list')
     .where('lists.owner', req.user.email)
     .then(items => {
       res.status(200).json({ items: items });
