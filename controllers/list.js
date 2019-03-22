@@ -61,8 +61,26 @@ module.exports.handleGetAllDetails = db => (req, res) => {
     .leftJoin('items', 'lists.id', 'items.list')
     .where('lists.owner', req.user.email)
     .then(items => {
-      res.status(200).json({ items: items });
-    });
+      items.forEach(({ listId, listTitle, itemId, itemTitle, complete }) => {
+        if (lists[listId] === null)
+          lists[listId] = { id: listId, title: listTitle, items: [] };
+        if (itemId !== null)
+          lists[listId].items.push({
+            id: itemId,
+            title: itemTitle,
+            complete
+          });
+      });
+      return res.status(200).json({
+        success: true,
+        lists
+      });
+    })
+    .catch(err =>
+      res
+        .status(500)
+        .json({ success: false, message: 'Failed to get lists with details' })
+    );
 };
 
 module.exports.handleGet = db => (req, res) => {
