@@ -79,7 +79,10 @@ module.exports.handleGetAllDetails = db => (req, res) => {
     .catch(err =>
       res
         .status(500)
-        .json({ success: false, message: 'Failed to get lists with details' })
+        .json({
+          success: false,
+          message: 'Failed to get lists with details: ' + err
+        })
     );
 };
 
