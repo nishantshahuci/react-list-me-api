@@ -62,9 +62,9 @@ module.exports.handleGetAllDetails = db => (req, res) => {
     .where('lists.owner', req.user.email)
     .then(items => {
       items.forEach(({ listId, listTitle, itemId, itemTitle, complete }) => {
-        if (lists[listId] === null)
+        if (!lists[listId])
           lists[listId] = { id: listId, title: listTitle, items: [] };
-        if (itemId !== null)
+        if (itemId)
           lists[listId].items.push({
             id: itemId,
             title: itemTitle,
@@ -77,12 +77,10 @@ module.exports.handleGetAllDetails = db => (req, res) => {
       });
     })
     .catch(err =>
-      res
-        .status(500)
-        .json({
-          success: false,
-          message: 'Failed to get lists with details: ' + err
-        })
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get lists with details: ' + err
+      })
     );
 };
 
