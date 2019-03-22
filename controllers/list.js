@@ -51,10 +51,10 @@ module.exports.handleGetAll = db => (req, res) => {
 module.exports.handleGetAllDetails = db => (req, res) => {
   var lists = {};
   db.select([
-    'lists.id',
-    'lists.title',
-    'items.id',
-    'items.title',
+    'lists.id as listId',
+    'lists.title as listTitle',
+    'items.id as itemId',
+    'items.title as itemTitle',
     'items.complete'
   ])
     .from('lists')
