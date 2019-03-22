@@ -48,6 +48,23 @@ module.exports.handleGetAll = db => (req, res) => {
     );
 };
 
+module.exports.handleGetAllDetails = db => (req, res) => {
+  var lists = {};
+  db.select([
+    'lists.id',
+    'lists.title',
+    'items.id',
+    'items.title',
+    'items.complete'
+  ])
+    .from('lists')
+    .innerJoin('items', 'lists.id', 'items.list')
+    .where('lists.owner', req.user.email)
+    .then(items => {
+      res.status(200).json({ items: items });
+    });
+};
+
 module.exports.handleGet = db => (req, res) => {
   // build list and return if it belongs to user
   db.select('id', 'title')

@@ -75,6 +75,11 @@ app.get(
   listController.handleGetAll(db)
 );
 app.get(
+  '/api/list/details',
+  passport.authenticate('jwt', { session: false }),
+  listController.handleGetAllDetails(db)
+);
+app.get(
   '/api/list/:id',
   passport.authenticate('jwt', { session: false }),
   listController.handleGet(db)
