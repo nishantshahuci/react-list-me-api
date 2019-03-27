@@ -26,7 +26,7 @@ const port = process.env.PORT || 3000;
 app.use(helmet());
 
 // cors middleware - Cross Origin Resource Sharing, allows external domains to access API
-app.use(cors());
+app.use(cors({ allowedHeaders: ['Authorization', 'Content-Type', 'Accept'] }));
 
 // body-parser middleware - converts request body to json object
 app.use(bodyParser.json());
