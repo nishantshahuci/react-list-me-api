@@ -18,7 +18,7 @@ module.exports.handleCreate = db => (req, res) => {
     .then(list => {
       return res.status(201).json({
         success: true,
-        list: { ...list[0], items: [] }
+        list: { id: list[0].id, title: list[0].title, items: [] }
       });
     })
     .catch(err => {
