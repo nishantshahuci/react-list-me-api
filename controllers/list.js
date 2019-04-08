@@ -206,7 +206,7 @@ module.exports.handleUpdateItem = db => (req, res) => {
       success: false,
       message: 'Missing title'
     });
-  if (!complete)
+  if (complete === undefined || complete === null)
     return res.status(400).json({
       success: false,
       message: 'Missing complete'
