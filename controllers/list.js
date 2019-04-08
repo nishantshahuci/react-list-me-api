@@ -244,7 +244,7 @@ module.exports.handleUpdateItem = db => (req, res) => {
                   return res.status(200).json({
                     success: true,
                     message: 'Successfully updated item',
-                    item
+                    item: item[0]
                   });
                 });
             }
